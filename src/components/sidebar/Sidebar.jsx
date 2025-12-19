@@ -1,26 +1,19 @@
 import { Box, Typography, List, ListItemButton } from "@mui/material";
 import { NavLink } from "react-router-dom";
-import InventoryIcon from "@mui/icons-material/Inventory2";
-import ScienceIcon from "@mui/icons-material/Science";
-import BarChartIcon from "@mui/icons-material/BarChart";
 
 const items = [
-  { label: "Dashboard", to: "/", icon: <InventoryIcon /> },
-  { label: "Parser", to: "/parser", icon: <ScienceIcon /> },
-  { label: "Scoring", to: "/scoring", icon: <BarChartIcon /> },
+  { label: "Accueil", to: "/" },
+  { label: "Parser Produit", to: "/parser" },
+  { label: "NLP Ingrédients", to: "/ingredients" },
+  { label: "ACV / LCA", to: "/acv" },
+  { label: "Scoring", to: "/scoring" },
 ];
 
 export default function Sidebar() {
   return (
-    <Box
-      width={260}
-      bgcolor="#0f172a"
-      color="white"
-      p={2}
-      sx={{ transition: "width .3s ease" }}
-    >
-      <Typography variant="h6" fontWeight={800} mb={3}>
-        EcoLabel
+    <Box width={260} bgcolor="#4CAF50" color="white" p={3}>
+      <Typography fontWeight={700} mb={4}>
+        bienvenu
       </Typography>
 
       <List>
@@ -33,16 +26,10 @@ export default function Sidebar() {
               color: "white",
               borderRadius: 2,
               mb: 1,
-              "&.active": {
-                bgcolor: "rgba(255,255,255,0.12)",
-              },
-              "&:hover": {
-                bgcolor: "rgba(255,255,255,0.08)",
-              },
+              "&.active": { bgcolor: "rgba(0,0,0,0.15)" },
             }}
           >
-            {item.icon}
-            <Typography ml={2}>{item.label}</Typography>
+            {item.label}
           </ListItemButton>
         ))}
       </List>

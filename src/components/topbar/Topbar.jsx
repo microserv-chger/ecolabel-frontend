@@ -7,9 +7,10 @@ export default function Topbar() {
       display="flex"
       alignItems="center"
       px={3}
-      borderBottom="1px solid rgba(0,0,0,0.06)"
+      bgcolor="white"
+      borderBottom="1px solid #eee"
     >
-      <Typography fontWeight={700}>
+      <Typography fontWeight={600}>
         Environmental Product Dashboard
       </Typography>
     </Box>

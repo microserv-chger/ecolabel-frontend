@@ -1,25 +1,42 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { mockGetMe, mockLogout } from "../api/mockAuth";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(
+    () => JSON.parse(localStorage.getItem("user")) || null
+  );
 
-  useEffect(() => {
-    const currentUser = mockGetMe(); // sync
-    setUser(currentUser);
-    setLoading(false);
-  }, []);
+  const login = ({ email, password }) => {
+    if (!email || !password) {
+      throw new Error("Email et mot de passe requis");
+    }
+
+    const fakeUser = { email };
+    setUser(fakeUser);
+    localStorage.setItem("user", JSON.stringify(fakeUser));
+  };
+
+  const signup = ({ email, password }) => {
+    // mock signup = login direct
+    login({ email, password });
+  };
 
   const logout = () => {
-    mockLogout();
     setUser(null);
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
+        signup,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

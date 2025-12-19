@@ -3,62 +3,46 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   TextField,
-  Box,
+  Button,
+  Stack
 } from "@mui/material";
 import { useState } from "react";
 
-export default function AddProductDialog({ open, onClose, onCreated }) {
-  const [form, setForm] = useState({
+export default function AddProductDialog({ open, onClose, onAdd }) {
+  const [product, setProduct] = useState({
     name: "",
     gtin: "",
     brand: "",
+    category: ""
   });
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setProduct({ ...product, [e.target.name]: e.target.value });
+  };
 
-  const submit = () => {
-    // 🔥 ON ENVOIE TOUJOURS LE FORMULAIRE AU DASHBOARD
-    onCreated(form);
-
-    // reset + close
-    setForm({ name: "", gtin: "", brand: "" });
+  const handleSubmit = () => {
+    onAdd(product);
     onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Ajouter un produit</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Add Product</DialogTitle>
 
       <DialogContent>
-        <Box display="flex" flexDirection="column" gap={2} mt={1}>
-          <TextField
-            label="Nom du produit"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-          />
-          <TextField
-            label="GTIN"
-            name="gtin"
-            value={form.gtin}
-            onChange={handleChange}
-          />
-          <TextField
-            label="Marque"
-            name="brand"
-            value={form.brand}
-            onChange={handleChange}
-          />
-        </Box>
+        <Stack spacing={2} mt={1}>
+          <TextField label="Product name" name="name" onChange={handleChange} />
+          <TextField label="GTIN" name="gtin" onChange={handleChange} />
+          <TextField label="Brand" name="brand" onChange={handleChange} />
+          <TextField label="Category" name="category" onChange={handleChange} />
+        </Stack>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>Annuler</Button>
-        <Button variant="contained" onClick={submit}>
-          Ajouter
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Add
         </Button>
       </DialogActions>
     </Dialog>

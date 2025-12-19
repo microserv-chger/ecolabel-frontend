@@ -1,100 +1,67 @@
-import {
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Chip,
-  IconButton,
-  Paper,
-  TableContainer,
-  Typography,
-  Box,
-} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import StatusBadge from "../StatusBadge.jsx";
 import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+import { useState } from "react";
+import ConfirmDeleteDialog from "../ConfirmDeleteDialog.jsx";
 
-export default function ProductTable({ products = [], onDelete }) {
+export default function ProductTable({ rows = [], onDelete }) {
+  const [selectedId, setSelectedId] = useState(null);
+
+  const columns = [
+    { field: "name", headerName: "NAME", flex: 1 },
+    { field: "gtin", headerName: "GTIN", flex: 1 },
+    {
+      field: "status",
+      headerName: "STATUS",
+      flex: 0.7,
+      renderCell: (params) => <StatusBadge status={params.value} />,
+      sortable: false,
+    },
+    { field: "score", headerName: "SCORE", flex: 0.7 },
+    { field: "dateParsing", headerName: "DATE PARSING", flex: 1 },
+    { field: "brand", headerName: "MARQUE", flex: 1 },
+    {
+      field: "actions",
+      headerName: "",
+      width: 80,
+      sortable: false,
+      renderCell: (params) => (
+        <IconButton
+          color="error"
+          onClick={() => setSelectedId(params.row.id)}
+        >
+          <DeleteIcon />
+        </IconButton>
+      ),
+    },
+  ];
+
   return (
-    <Paper
-      sx={{
-        p: 2,
-        borderRadius: 3,
-        boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-      }}
-    >
-      <Typography variant="h6" fontWeight={700} mb={2}>
-        Liste des produits
-      </Typography>
+    <>
+      <div style={{ height: 520, width: "100%" }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 10, page: 0 } },
+          }}
+          pageSizeOptions={[10, 20, 50]}
+          checkboxSelection
+          disableRowSelectionOnClick
+        />
+      </div>
 
-      {products.length === 0 ? (
-        <Typography color="text.secondary">
-          Aucun produit pour le moment
-        </Typography>
-      ) : (
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Produit</TableCell>
-                <TableCell>GTIN</TableCell>
-                <TableCell>Marque</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Score</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {products.map((p) => (
-                <TableRow
-                  key={p.id}
-                  sx={{
-                    transition: "background-color .2s ease",
-                    "&:hover": {
-                      backgroundColor: "rgba(67,160,71,0.08)",
-                    },
-                  }}
-                >
-                  <TableCell>{p.name}</TableCell>
-                  <TableCell>{p.gtin}</TableCell>
-                  <TableCell>{p.brand}</TableCell>
-
-                  <TableCell>
-                    <Chip
-                      label={p.status}
-                      color={p.status === "UP" ? "success" : "warning"}
-                      size="small"
-                    />
-                  </TableCell>
-
-                  <TableCell>
-                    <Chip
-                      label={p.score}
-                      color="primary"
-                      size="small"
-                    />
-                  </TableCell>
-
-                  <TableCell align="right">
-                    <IconButton
-                      color="error"
-                      onClick={() => onDelete(p.id)}
-                      sx={{
-                        transition: "transform .15s ease",
-                        "&:hover": {
-                          transform: "scale(1.15)",
-                        },
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Paper>
+      {/* Confirmation dialog */}
+      <ConfirmDeleteDialog
+        open={Boolean(selectedId)}
+        onClose={() => setSelectedId(null)}
+        onConfirm={() => {
+          onDelete(selectedId);
+          setSelectedId(null);
+        }}
+      />
+    </>
   );
 }

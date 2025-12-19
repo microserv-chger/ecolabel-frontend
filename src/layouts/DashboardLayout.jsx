@@ -1,21 +1,21 @@
-import { Box, Container, Paper } from "@mui/material";
+// src/layouts/DashboardLayout.jsx
+import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/sidebar/Sidebar";
 import Topbar from "../components/topbar/Topbar";
 
 export default function DashboardLayout() {
   return (
-    <Box display="flex" minHeight="100vh">
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#F4F6F8" }}>
       <Sidebar />
 
-      <Box flex={1} display="flex" flexDirection="column">
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Topbar />
 
-        <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
-          <Paper sx={{ p: 3 }}>
-            <Outlet />
-          </Paper>
-        </Container>
+        {/* CONTENU LARGE */}
+        <Box sx={{ p: 4 }}>
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

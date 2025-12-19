@@ -1,22 +1,25 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+
+import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./router/ProtectedRoute";
+
 import Dashboard from "./pages/Dashboard";
 import Parser from "./pages/Parser";
 import Ingredients from "./pages/Ingredients";
 import ACV from "./pages/ACV";
 import Scoring from "./pages/Scoring";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import DashboardLayout from "./layouts/DashboardLayout";
-import ProtectedRoute from "./router/ProtectedRoute";
 
 export default function App() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Routes publiques */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* Protected routes */}
+      {/* Routes protégées */}
       <Route
         element={
           <ProtectedRoute>
@@ -32,7 +35,7 @@ export default function App() {
       </Route>
 
       {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
