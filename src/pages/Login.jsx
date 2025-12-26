@@ -5,15 +5,24 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import leaf from "../assets/1.webp";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login({ email, password });
-    navigate("/");
+    setError(null);
+    setLoading(true);
+    try {
+      await login({ username, password });
+      navigate("/");
+    } catch (err) {
+      setError("Login failed. Please check your credentials.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,12 +43,17 @@ export default function Login() {
           </Typography>
 
           <form onSubmit={handleSubmit}>
+            {error && (
+              <Typography color="error" mb={2}>
+                {error}
+              </Typography>
+            )}
             <TextField
               fullWidth
-              label="Email address"
+              label="Username"
               margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
 
             <TextField
@@ -54,6 +68,7 @@ export default function Login() {
             <Button
               fullWidth
               type="submit"
+              disabled={loading}
               sx={{
                 mt: 3,
                 bgcolor: "#2e7d32",
@@ -61,7 +76,7 @@ export default function Login() {
               }}
               variant="contained"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
 

@@ -1,15 +1,15 @@
 import { Box, Typography } from "@mui/material";
 
-const data = [
-  { label: "CO₂ (kg eq)", value: 16000, color: "#9DBCF9" },
-  { label: "Eau (litres)", value: 30000, color: "#66E0D0" },
-  { label: "Énergie (kWh)", value: 21000, color: "#000000" },
-  { label: "Other", value: 26000, color: "#7BE495" },
+const defaultData = [
+  { label: "CO₂ (kg eq)", value: 0, color: "#9DBCF9" },
+  { label: "Eau (litres)", value: 0, color: "#66E0D0" },
+  { label: "Énergie (kWh)", value: 0, color: "#000000" },
+  { label: "Other", value: 0, color: "#7BE495" },
 ];
 
 const MAX_VALUE = 30000;
 
-export default function AcvBarChart() {
+export default function AcvBarChart({ data = defaultData }) {
   return (
     <Box>
       <Typography fontWeight={600} mb={2}>

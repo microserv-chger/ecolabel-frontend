@@ -5,17 +5,37 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import leaf from "../assets/1.webp";
 
 export default function Signup() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirm) return alert("Passwords do not match");
-    signup({ email, password });
-    navigate("/");
+    if (password !== confirm) {
+      setError("Passwords do not match");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      await signup({ username, email, password });
+      navigate("/");
+    } catch (err) {
+      console.error("Signup error:", err);
+      // Try to get specific message from backend (e.g. "Username is already taken")
+      const backendMsg = err.response?.data?.message || err.response?.data || "Signup failed. Try a different username or email.";
+      setError(typeof backendMsg === 'string' ? backendMsg : JSON.stringify(backendMsg));
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,12 +47,29 @@ export default function Signup() {
           </Typography>
 
           <form onSubmit={handleSubmit}>
+            {error && (
+              <Typography color="error" mb={2}>
+                {error}
+              </Typography>
+            )}
+
+            <TextField
+              fullWidth
+              label="Username"
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+
             <TextField
               fullWidth
               label="Email address"
+              type="email"
               margin="normal"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
             <TextField
@@ -42,6 +79,7 @@ export default function Signup() {
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
             <TextField
@@ -51,11 +89,13 @@ export default function Signup() {
               margin="normal"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
+              required
             />
 
             <Button
               fullWidth
               type="submit"
+              disabled={loading}
               sx={{
                 mt: 3,
                 bgcolor: "#2e7d32",
@@ -63,7 +103,7 @@ export default function Signup() {
               }}
               variant="contained"
             >
-              Signup
+              {loading ? "Signing up..." : "Signup"}
             </Button>
           </form>
 
