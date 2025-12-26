@@ -95,12 +95,18 @@ export default function IngredientsTable({ ingredients = [] }) {
                   />
                 </TableCell>
                 <TableCell>
-                  <Chip
-                    label={`${ingredient.impactHint?.toFixed(1) || "N/A"} kg CO₂`}
-                    size="small"
-                    color={status.color}
-                    variant="outlined"
-                  />
+                  {ingredient.impactHint > 0 ? (
+                    <Chip
+                      label={`${ingredient.impactHint?.toFixed(1)} kg CO₂`}
+                      size="small"
+                      color={status.color}
+                      variant="outlined"
+                    />
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      En attente AVC
+                    </Typography>
+                  )}
                 </TableCell>
                 <TableCell>
                   {ingredient.organic ? (

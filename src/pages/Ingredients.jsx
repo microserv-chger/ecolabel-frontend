@@ -189,16 +189,6 @@ export default function Ingredients() {
 
           <Stack direction="row" spacing={2}>
             <Button
-              variant="contained"
-              sx={{
-                background: "#22C55E",
-                "&:hover": { background: "#16A34A" }
-              }}
-            >
-              Envoyer vers ACV
-            </Button>
-
-            <Button
               variant="outlined"
               sx={{
                 borderColor: "#22C55E",
