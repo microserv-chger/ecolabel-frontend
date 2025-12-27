@@ -117,6 +117,12 @@ export const ScoringService = {
     const response = await http.get(`${URLS.SCORING}/score/product/${productId}`);
     return response.data;
   },
+
+  getProvenance: async (productId) => {
+    // GET http://localhost:8084/score/provenance/{productId}
+    const response = await http.get(`${URLS.SCORING}/score/provenance/${productId}`);
+    return response.data; // Returns List<ProvenanceEntry>
+  },
 };
 
 // ---------- WIDGET (PUBLIC) ----------

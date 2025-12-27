@@ -11,6 +11,7 @@ import Parser from "./pages/Parser";
 import Ingredients from "./pages/Ingredients";
 import ACV from "./pages/ACV";
 import Scoring from "./pages/Scoring";
+import Traceability from "./pages/Traceability";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/ingredients" element={<Ingredients />} />
         <Route path="/acv" element={<ACV />} />
         <Route path="/scoring" element={<Scoring />} />
+        <Route path="/traceview" element={<Traceability />} />
       </Route>
 
       {/* Fallback */}

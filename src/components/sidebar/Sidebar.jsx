@@ -9,6 +9,7 @@ const items = [
   { label: "NLP Ingrédients", to: "/ingredients" },
   { label: "ACV / LCA", to: "/acv" },
   { label: "Scoring", to: "/scoring" },
+  { label: "Traçabilité", to: "/traceview" },
 ];
 
 export default function Sidebar() {
