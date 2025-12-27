@@ -14,7 +14,7 @@ import {
   TableBody,
   TextField,
   MenuItem,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import PageTitle from "../components/PageTitle";
@@ -32,6 +32,7 @@ export default function Acv() {
   const [fetchingProducts, setFetchingProducts] = useState(false);
   const [error, setError] = useState(null);
   const [chartData, setChartData] = useState(null);
+  const [lcaResult, setLcaResult] = useState(null);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -52,27 +53,30 @@ export default function Acv() {
   const handleProductChange = (e) => {
     const productId = e.target.value;
     setSelectedProductId(productId);
-    const prod = products.find(p => p.productId === productId);
+    const prod = products.find((p) => p.productId === productId);
     if (prod && prod.ingredients) {
-      setIngredients(prod.ingredients.map(ing => ({
-        ...ing,
-        impactHint: ing.impactHint || 1.0 // Default if 0
-      })));
+      setIngredients(
+        prod.ingredients.map((ing) => ({
+          ...ing,
+          quantity_g: ing.quantity_g ?? (ing.impactHint ? ing.impactHint * 100 : 100),
+        }))
+      );
     } else {
       setIngredients([]);
     }
     setChartData(null);
+    setLcaResult(null);
   };
 
-  const handleIngredientImpactChange = (index, value) => {
+  const handleIngredientQuantityChange = (index, value) => {
     const newIngredients = [...ingredients];
-    newIngredients[index].impactHint = parseFloat(value) || 0;
+    newIngredients[index].quantity_g = parseFloat(value) || 0;
     setIngredients(newIngredients);
   };
 
   const handleCalculate = async () => {
     if (!selectedProductId) {
-      setError("Veuillez sélectionner un produit.");
+      setError("Veuillez selectionner un produit.");
       return;
     }
 
@@ -81,28 +85,34 @@ export default function Acv() {
     try {
       const request = {
         productId: selectedProductId,
-        ingredients: ingredients.map(ing => ({
+        ingredients: ingredients.map((ing) => ({
           name: ing.name,
           category: ing.category,
-          impactHint: ing.impactHint
+          quantity_g: ing.quantity_g ?? 0,
         })),
-        transportKm: parseInt(transportKm),
-        transportMode: transportMode
+        transport: {
+          mode: (transportMode || "road").toUpperCase(),
+          distance_km: parseFloat(transportKm) || 0,
+          weight_g: 500,
+        },
+        packaging: {
+          material: "OTHER",
+          weight_g: 200,
+        },
       };
 
       const result = await LCAService.calculate(request);
 
       const newData = [
-        { label: "CO₂ (kg)", value: result.totalCo2Kg || 0, color: "#9DBCF9" },
-        { label: "Eau (L)", value: result.totalWaterLiters || 0, color: "#66E0D0" },
-        { label: "Énergie (MJ)", value: result.totalEnergyMj || 0, color: "#10B981" },
-        { label: "Total Ratio", value: 100, color: "#F59E0B" },
+        { label: "CO2 (kg)", value: result.co2_kg || 0, color: "#9DBCF9" },
+        { label: "Eau (L)", value: result.water_l || 0, color: "#66E0D0" },
+        { label: "Energie (MJ)", value: result.energy_mj || 0, color: "#10B981" },
       ];
       setChartData(newData);
-
+      setLcaResult(result);
     } catch (err) {
       console.error(err);
-      setError("Erreur lors du calcul ACV. Vérifiez le backend.");
+      setError(err?.response?.data?.detail || "Erreur lors du calcul ACV. Verifiez le backend.");
     } finally {
       setLoading(false);
     }
@@ -121,7 +131,6 @@ export default function Acv() {
               </Grid>
             )}
 
-            {/* Product Selection */}
             <Grid item xs={12} md={6}>
               <SelectProduct
                 value={selectedProductId}
@@ -131,7 +140,6 @@ export default function Acv() {
               />
             </Grid>
 
-            {/* Transport Options */}
             <Grid item xs={6} md={3}>
               <TextField
                 label="Transport (km)"
@@ -156,19 +164,18 @@ export default function Acv() {
               </TextField>
             </Grid>
 
-            {/* Ingredients Table for Review */}
             {ingredients.length > 0 && (
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom color="text.secondary">
-                  Révision des ingrédients (AVC/LCA)
+                  Revision des ingredients (AVC/LCA)
                 </Typography>
                 <Box sx={{ border: "1px solid #E5E7EB", borderRadius: 2, overflow: "hidden" }}>
                   <Table size="small">
                     <TableHead sx={{ bgcolor: "#F9FAFB" }}>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 600 }}>Ingrédient</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Catégorie</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Impact Ratio (Poids/Impact)</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Ingredient</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Categorie</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Quantite (g)</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -180,9 +187,9 @@ export default function Acv() {
                             <TextField
                               size="small"
                               type="number"
-                              value={ing.impactHint}
-                              onChange={(e) => handleIngredientImpactChange(idx, e.target.value)}
-                              sx={{ width: 100 }}
+                              value={ing.quantity_g}
+                              onChange={(e) => handleIngredientQuantityChange(idx, e.target.value)}
+                              sx={{ width: 120 }}
                             />
                           </TableCell>
                         </TableRow>
@@ -206,15 +213,58 @@ export default function Acv() {
                   "&:hover": { backgroundColor: "#2E7D32" },
                 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : "GÉNÉRER LE CALCUL ACV"}
+                {loading ? <CircularProgress size={24} color="inherit" /> : "Generer le calcul ACV"}
               </Button>
             </Grid>
           </Grid>
 
-          {/* Result Chart */}
           {chartData && (
             <Box mt={5}>
               <AcvBarChart data={chartData} />
+            </Box>
+          )}
+
+          {lcaResult && (
+            <Box mt={4}>
+              <Typography variant="h6" gutterBottom>
+                Détails du calcul
+              </Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>Poste</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>CO2 (kg)</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Eau (L)</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Énergie (MJ)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Ingrédients</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.ingredients?.co2_kg ?? 0).toFixed(3)}</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.ingredients?.water_l ?? 0).toFixed(3)}</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.ingredients?.energy_mj ?? 0).toFixed(3)}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Emballage</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.packaging?.co2_kg ?? 0).toFixed(3)}</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.packaging?.water_l ?? 0).toFixed(3)}</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.packaging?.energy_mj ?? 0).toFixed(3)}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Transport</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.transport?.co2_kg ?? 0).toFixed(3)}</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.transport?.water_l ?? 0).toFixed(3)}</TableCell>
+                    <TableCell>{(lcaResult.breakdown?.transport?.energy_mj ?? 0).toFixed(3)}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700 }}>Total</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{(lcaResult.co2_kg ?? 0).toFixed(3)}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{(lcaResult.water_l ?? 0).toFixed(3)}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{(lcaResult.energy_mj ?? 0).toFixed(3)}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </Box>
           )}
         </CardContent>

@@ -1,14 +1,15 @@
 // src/components/SelectProduct.jsx
 import { MenuItem, TextField } from "@mui/material";
 
-export default function SelectProduct({ value, onChange, products = [] }) {
+export default function SelectProduct({ value, onChange, products = [], disabled = false }) {
   return (
     <TextField
       select
-      label="Sélectionner un produit"
+      label="Selectionner un produit"
       value={value}
       onChange={onChange}
       fullWidth
+      disabled={disabled}
     >
       {products.length === 0 ? (
         <MenuItem disabled value="">
