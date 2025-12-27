@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import PageTitle from "../components/PageTitle";
 import SelectProduct from "../components/SelectProduct";
+import PublicScoreWidget from "../components/PublicScoreWidget";
 import DonutChart from "../components/DonutChart";
 import { ScoringService, NLPService } from "../api/services";
 
@@ -103,38 +104,35 @@ export default function Scoring() {
         </Alert>
       )}
 
-      {scoringData && (
+      {scoringData ? (
         <>
           {/* Scores */}
           <Grid container spacing={3}>
-            {/* Score lettre */}
-            <Grid item xs={12} md={6}>
+            {/* Score Letter */}
+            <Grid item xs={12} md={4}>
               <Card sx={{ height: "100%", borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
                 <CardContent sx={{ textAlign: "center", py: 4 }}>
                   <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 2 }}>
-                    Eco-score
+                    ÉCO-SCORE
                   </Typography>
 
                   <Box
                     sx={{
-                      width: 140,
-                      height: 140,
-                      borderRadius: "50%",
-                      backgroundColor: getLetterColor(scoringData.scoreLetter),
+                      width: 100,
+                      height: 100,
+                      mx: "auto",
+                      mt: 3,
+                      mb: 3,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      mx: "auto",
-                      my: 3,
-                      boxShadow: `0 8px 16px ${getLetterColor(scoringData.scoreLetter)}44`,
-                      transition: "transform 0.3s ease",
-                      "&:hover": { transform: "scale(1.05)" }
+                      borderRadius: "50%",
+                      bgcolor: getLetterColor(scoringData.scoreLetter), // Using getLetterColor as defined
+                      color: "white",
+                      boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
                     }}
                   >
-                    <Typography
-                      variant="h2"
-                      sx={{ color: "#fff", fontWeight: 800 }}
-                    >
+                    <Typography variant="h2" fontWeight={900}>
                       {scoringData.scoreLetter}
                     </Typography>
                   </Box>
@@ -146,7 +144,7 @@ export default function Scoring() {
             </Grid>
 
             {/* Score numérique */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <Card sx={{ height: "100%", borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
                 <CardContent sx={{ textAlign: "center", py: 4 }}>
                   <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 2 }}>
@@ -164,6 +162,19 @@ export default function Scoring() {
                   </Typography>
                 </CardContent>
               </Card>
+            </Grid>
+
+            {/* --- PUBLIC VIEW DEMO --- */}
+            <Grid item xs={12} md={4}>
+              <Box>
+                <Typography variant="h6" fontWeight={700} mb={2}>
+                  Aperçu Public (Widget API)
+                </Typography>
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  Voici comment le score apparaît sur le catalogue public (Port 8085).
+                </Typography>
+                <PublicScoreWidget productId={selectedProductId} />
+              </Box>
             </Grid>
           </Grid>
 
@@ -209,8 +220,26 @@ export default function Scoring() {
             </CardContent>
           </Card>
         </>
+      ) : selectedProductId ? (
+        <Box textAlign="center" py={10}>
+          <CircularProgress color="success" />
+          <Typography mt={2} color="text.secondary">
+            Récupération du score...
+          </Typography>
+        </Box>
+      ) : (
+        <Box
+          textAlign="center"
+          py={10}
+          bgcolor="#F9FAFB"
+          borderRadius={4}
+          border="2px dashed #E5E7EB"
+        >
+          <Typography variant="h6" color="text.disabled">
+            Sélectionnez un produit pour afficher son score environnemental
+          </Typography>
+        </Box>
       )}
     </Box>
   );
 }
-
